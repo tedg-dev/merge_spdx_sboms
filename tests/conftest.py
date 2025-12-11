@@ -15,7 +15,7 @@ def sample_root_sbom():
             "documentNamespace": "https://spdx.org/spdxdocs/test/root",
             "creationInfo": {
                 "creators": ["Tool: test"],
-                "created": "2025-12-11T00:00:00Z"
+                "created": "2025-12-11T00:00:00Z",
             },
             "packages": [
                 {
@@ -27,29 +27,29 @@ def sample_root_sbom():
                         {
                             "referenceCategory": "PACKAGE-MANAGER",
                             "referenceType": "purl",
-                            "referenceLocator": "pkg:pypi/requests"
+                            "referenceLocator": "pkg:pypi/requests",
                         }
-                    ]
+                    ],
                 },
                 {
                     "name": "root-project",
                     "SPDXID": "SPDXRef-root-project",
                     "downloadLocation": "https://github.com/test/root-project",
-                    "filesAnalyzed": False
-                }
+                    "filesAnalyzed": False,
+                },
             ],
             "relationships": [
                 {
                     "spdxElementId": "SPDXRef-DOCUMENT",
                     "relatedSpdxElement": "SPDXRef-root-project",
-                    "relationshipType": "DESCRIBES"
+                    "relationshipType": "DESCRIBES",
                 },
                 {
                     "spdxElementId": "SPDXRef-root-project",
                     "relatedSpdxElement": "SPDXRef-pypi-requests-abc123",
-                    "relationshipType": "DEPENDS_ON"
-                }
-            ]
+                    "relationshipType": "DEPENDS_ON",
+                },
+            ],
         }
     }
 
@@ -65,7 +65,7 @@ def sample_dependency_sbom():
             "documentNamespace": "https://spdx.org/spdxdocs/test/requests",
             "creationInfo": {
                 "creators": ["Tool: test"],
-                "created": "2025-12-11T00:00:00Z"
+                "created": "2025-12-11T00:00:00Z",
             },
             "packages": [
                 {
@@ -78,29 +78,29 @@ def sample_dependency_sbom():
                         {
                             "referenceCategory": "PACKAGE-MANAGER",
                             "referenceType": "purl",
-                            "referenceLocator": "pkg:pypi/urllib3@2.0.0"
+                            "referenceLocator": "pkg:pypi/urllib3@2.0.0",
                         }
-                    ]
+                    ],
                 },
                 {
                     "name": "requests",
                     "SPDXID": "SPDXRef-requests-main",
                     "downloadLocation": "https://github.com/psf/requests",
-                    "filesAnalyzed": False
-                }
+                    "filesAnalyzed": False,
+                },
             ],
             "relationships": [
                 {
                     "spdxElementId": "SPDXRef-DOCUMENT",
                     "relatedSpdxElement": "SPDXRef-requests-main",
-                    "relationshipType": "DESCRIBES"
+                    "relationshipType": "DESCRIBES",
                 },
                 {
                     "spdxElementId": "SPDXRef-requests-main",
                     "relatedSpdxElement": "SPDXRef-pypi-urllib3-def456",
-                    "relationshipType": "DEPENDS_ON"
-                }
-            ]
+                    "relationshipType": "DEPENDS_ON",
+                },
+            ],
         }
     }
 
@@ -114,11 +114,11 @@ def temp_sbom_dir(sample_root_sbom, sample_dependency_sbom):
         deps_dir.mkdir(parents=True)
 
         root_path = project_dir / "test_user_test_repo_root.json"
-        with open(root_path, 'w') as f:
+        with open(root_path, "w") as f:
             json.dump(sample_root_sbom, f)
 
         dep_path = deps_dir / "psf_requests_main.json"
-        with open(dep_path, 'w') as f:
+        with open(dep_path, "w") as f:
             json.dump(sample_dependency_sbom, f)
 
         yield deps_dir

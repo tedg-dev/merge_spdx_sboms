@@ -9,20 +9,10 @@ def test_sanitize_name():
 
 
 def test_extract_ecosystem():
-    refs = [
-        {
-            "referenceType": "purl",
-            "referenceLocator": "pkg:pypi/requests"
-        }
-    ]
+    refs = [{"referenceType": "purl", "referenceLocator": "pkg:pypi/requests"}]
     assert SpdxIdGenerator.extract_ecosystem(refs) == "pypi"
 
-    refs = [
-        {
-            "referenceType": "purl",
-            "referenceLocator": "pkg:npm/lodash"
-        }
-    ]
+    refs = [{"referenceType": "purl", "referenceLocator": "pkg:npm/lodash"}]
     assert SpdxIdGenerator.extract_ecosystem(refs) == "npm"
 
     assert SpdxIdGenerator.extract_ecosystem([]) == "unknown"
@@ -39,18 +29,9 @@ def test_generate_hash():
 
 
 def test_generate_spdx_id():
-    refs = [
-        {
-            "referenceType": "purl",
-            "referenceLocator": "pkg:pypi/requests@2.31.0"
-        }
-    ]
+    refs = [{"referenceType": "purl", "referenceLocator": "pkg:pypi/requests@2.31.0"}]
 
-    spdx_id = SpdxIdGenerator.generate_spdx_id(
-        "requests",
-        "2.31.0",
-        refs
-    )
+    spdx_id = SpdxIdGenerator.generate_spdx_id("requests", "2.31.0", refs)
 
     assert spdx_id.startswith("SPDXRef-pypi-")
     assert "requests" in spdx_id

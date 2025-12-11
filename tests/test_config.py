@@ -6,15 +6,18 @@ from sbom_merger.infrastructure.config import Config, GitHubAccount
 
 
 def test_config_load_multi_account():
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        json.dump({
-            "accounts": [
-                {"username": "user1", "token": "token1"},
-                {"username": "user2", "token": "token2"}
-            ]
-        }, f)
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        json.dump(
+            {
+                "accounts": [
+                    {"username": "user1", "token": "token1"},
+                    {"username": "user2", "token": "token2"},
+                ]
+            },
+            f,
+        )
         temp_file = f.name
-    
+
     try:
         config = Config(temp_file)
         assert len(config.accounts) == 2
@@ -25,13 +28,10 @@ def test_config_load_multi_account():
 
 
 def test_config_load_legacy_format():
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        json.dump({
-            "username": "legacy_user",
-            "token": "legacy_token"
-        }, f)
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        json.dump({"username": "legacy_user", "token": "legacy_token"}, f)
         temp_file = f.name
-    
+
     try:
         config = Config(temp_file)
         assert len(config.accounts) == 1
@@ -41,15 +41,18 @@ def test_config_load_legacy_format():
 
 
 def test_config_get_account():
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        json.dump({
-            "accounts": [
-                {"username": "user1", "token": "token1"},
-                {"username": "user2", "token": "token2"}
-            ]
-        }, f)
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        json.dump(
+            {
+                "accounts": [
+                    {"username": "user1", "token": "token1"},
+                    {"username": "user2", "token": "token2"},
+                ]
+            },
+            f,
+        )
         temp_file = f.name
-    
+
     try:
         config = Config(temp_file)
         account = config.get_account("user2")
@@ -61,12 +64,10 @@ def test_config_get_account():
 
 
 def test_config_get_account_not_found():
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        json.dump({
-            "accounts": [{"username": "user1", "token": "token1"}]
-        }, f)
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        json.dump({"accounts": [{"username": "user1", "token": "token1"}]}, f)
         temp_file = f.name
-    
+
     try:
         config = Config(temp_file)
         account = config.get_account("nonexistent")
@@ -76,12 +77,10 @@ def test_config_get_account_not_found():
 
 
 def test_config_get_default_account():
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        json.dump({
-            "accounts": [{"username": "user1", "token": "token1"}]
-        }, f)
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        json.dump({"accounts": [{"username": "user1", "token": "token1"}]}, f)
         temp_file = f.name
-    
+
     try:
         config = Config(temp_file)
         account = config.get_default_account()
@@ -92,10 +91,10 @@ def test_config_get_default_account():
 
 
 def test_config_invalid_json():
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
         f.write("invalid json{}")
         temp_file = f.name
-    
+
     try:
         with pytest.raises(ValueError, match="Invalid keys.json format"):
             Config(temp_file)

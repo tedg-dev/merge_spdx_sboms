@@ -33,13 +33,15 @@ def test_merge_preserves_relationships(temp_sbom_dir):
     result = merger.merge_sboms(root_sbom, dep_sboms)
 
     describes_rels = [
-        r for r in result.merged_document.relationships
+        r
+        for r in result.merged_document.relationships
         if r.relationship_type == "DESCRIBES"
     ]
     assert len(describes_rels) >= 1
 
     depends_rels = [
-        r for r in result.merged_document.relationships
+        r
+        for r in result.merged_document.relationships
         if r.relationship_type == "DEPENDS_ON"
     ]
     assert len(depends_rels) >= 2

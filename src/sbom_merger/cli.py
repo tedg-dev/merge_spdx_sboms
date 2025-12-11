@@ -11,63 +11,54 @@ from .infrastructure.github_client import GitHubClient
 
 @click.command()
 @click.option(
-    '--dependencies-dir',
+    "--dependencies-dir",
     type=click.Path(exists=True, path_type=Path),
     required=True,
-    help='Path to dependencies directory containing dependency SBOMs'
+    help="Path to dependencies directory containing dependency SBOMs",
 )
 @click.option(
-    '--output-dir',
+    "--output-dir",
     type=click.Path(path_type=Path),
     default=None,
-    help='Output directory for merged SBOM (default: same as root SBOM)'
+    help="Output directory for merged SBOM (default: same as root SBOM)",
 )
 @click.option(
-    '--key-file',
+    "--key-file",
     type=click.Path(),
-    default='keys.json',
-    help='Path to keys.json file for GitHub authentication'
+    default="keys.json",
+    help="Path to keys.json file for GitHub authentication",
 )
 @click.option(
-    '--account',
+    "--account", type=str, default=None, help="GitHub account username from keys.json"
+)
+@click.option(
+    "--push-to-github", is_flag=True, help="Push merged SBOM to GitHub repository"
+)
+@click.option(
+    "--github-owner",
     type=str,
     default=None,
-    help='GitHub account username from keys.json'
+    help="GitHub repository owner (required with --push-to-github)",
 )
 @click.option(
-    '--push-to-github',
-    is_flag=True,
-    help='Push merged SBOM to GitHub repository'
-)
-@click.option(
-    '--github-owner',
+    "--github-repo",
     type=str,
     default=None,
-    help='GitHub repository owner (required with --push-to-github)'
+    help="GitHub repository name (required with --push-to-github)",
 )
 @click.option(
-    '--github-repo',
+    "--github-path",
     type=str,
-    default=None,
-    help='GitHub repository name (required with --push-to-github)'
+    default="sboms/merged_sbom.json",
+    help="Target path in GitHub repository",
 )
 @click.option(
-    '--github-path',
+    "--github-branch",
     type=str,
-    default='sboms/merged_sbom.json',
-    help='Target path in GitHub repository'
+    default="main",
+    help="GitHub branch to push to (default: main)",
 )
-@click.option(
-    '--github-branch',
-    type=str,
-    default='main',
-    help='GitHub branch to push to (default: main)'
-)
-@click.option(
-    '--verbose',
-    is_flag=True,
-    help='Enable verbose output'
-)
+@click.option("--verbose", is_flag=True, help="Enable verbose output")
 def main(
     dependencies_dir,
     output_dir,
@@ -78,7 +69,7 @@ def main(
     github_repo,
     github_path,
     github_branch,
-    verbose
+    verbose,
 ):
     click.echo("=" * 70)
     click.echo("SPDX SBOM Merger v1.0.0")
@@ -88,9 +79,7 @@ def main(
         if verbose:
             click.echo(f"\n🔍 Discovering SBOM files in: {dependencies_dir}")
 
-        root_sbom, dep_sboms = FileHandler.discover_sbom_files(
-            dependencies_dir
-        )
+        root_sbom, dep_sboms = FileHandler.discover_sbom_files(dependencies_dir)
 
         if verbose:
             click.echo(f"✅ Found root SBOM: {root_sbom.name}")
@@ -103,9 +92,13 @@ def main(
         merger = SbomMerger()
         result = merger.merge_sboms(root_sbom, dep_sboms)
 
-        click.echo(f"✅ Merge completed in {result.statistics.processing_time_seconds:.2f}s")
+        click.echo(
+            f"✅ Merge completed in {result.statistics.processing_time_seconds:.2f}s"
+        )
         click.echo(f"   Total packages: {result.statistics.total_packages}")
-        click.echo(f"   Duplicates removed: {result.statistics.duplicate_packages_removed}")
+        click.echo(
+            f"   Duplicates removed: {result.statistics.duplicate_packages_removed}"
+        )
         click.echo(f"   Total relationships: {result.statistics.total_relationships}")
 
         output_path = FileHandler.get_output_path(root_sbom, output_dir)
@@ -118,19 +111,25 @@ def main(
         report = MergeReporter.generate_report(result, output_path)
 
         if result.statistics.validation_errors:
-            click.echo(f"\n⚠️  {len(result.statistics.validation_errors)} validation errors found")
+            click.echo(
+                f"\n⚠️  {len(result.statistics.validation_errors)} validation errors found"
+            )
             for error in result.statistics.validation_errors:
                 click.echo(f"   ❌ {error}")
 
         if result.statistics.validation_warnings:
-            click.echo(f"\n⚠️  {len(result.statistics.validation_warnings)} validation warnings found")
+            click.echo(
+                f"\n⚠️  {len(result.statistics.validation_warnings)} validation warnings found"
+            )
             if verbose:
                 for warning in result.statistics.validation_warnings:
                     click.echo(f"   ⚠️  {warning}")
 
         if push_to_github:
             if not github_owner or not github_repo:
-                click.echo("\n❌ Error: --github-owner and --github-repo required with --push-to-github")
+                click.echo(
+                    "\n❌ Error: --github-owner and --github-repo required with --push-to-github"
+                )
                 sys.exit(1)
 
             click.echo(f"\n🔐 Loading GitHub credentials from: {key_file}")
@@ -159,9 +158,11 @@ def main(
                     output_path,
                     github_path,
                     github_branch,
-                    f"Add merged SBOM from {root_sbom.name}"
+                    f"Add merged SBOM from {root_sbom.name}",
                 )
-                click.echo(f"✅ Successfully pushed to {github_owner}/{github_repo}:{github_branch}")
+                click.echo(
+                    f"✅ Successfully pushed to {github_owner}/{github_repo}:{github_branch}"
+                )
                 click.echo(f"   Path: {github_path}")
             except Exception as e:
                 click.echo(f"❌ Failed to push to GitHub: {e}")
@@ -171,7 +172,9 @@ def main(
         click.echo("✅ SBOM merge completed successfully!")
         click.echo("=" * 70)
         click.echo(f"\nMerged SBOM: {output_path}")
-        click.echo(f"Merge Report: {output_path.parent / f'{output_path.stem}_merge_report.md'}")
+        click.echo(
+            f"Merge Report: {output_path.parent / f'{output_path.stem}_merge_report.md'}"
+        )
 
     except FileNotFoundError as e:
         click.echo(f"\n❌ Error: {e}")
@@ -183,9 +186,10 @@ def main(
         click.echo(f"\n❌ Unexpected error: {e}")
         if verbose:
             import traceback
+
             traceback.print_exc()
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -11,12 +11,7 @@ def test_validate_document_success():
         name="test",
         document_namespace="https://test.com/test",
         creation_info={"created": "2025-12-11T00:00:00Z"},
-        packages=[
-            SpdxPackage(
-                name="test-package",
-                spdx_id="SPDXRef-test-1"
-            )
-        ]
+        packages=[SpdxPackage(name="test-package", spdx_id="SPDXRef-test-1")],
     )
 
     errors, warnings = SpdxValidator.validate_document(doc)
@@ -30,7 +25,7 @@ def test_validate_unsupported_version():
         spdx_id="SPDXRef-DOCUMENT",
         name="test",
         document_namespace="https://test.com/test",
-        creation_info={"created": "2025-12-11T00:00:00Z"}
+        creation_info={"created": "2025-12-11T00:00:00Z"},
     )
 
     errors, warnings = SpdxValidator.validate_document(doc)
@@ -47,8 +42,8 @@ def test_validate_duplicate_spdx_ids():
         creation_info={"created": "2025-12-11T00:00:00Z"},
         packages=[
             SpdxPackage(name="pkg1", spdx_id="SPDXRef-test-1"),
-            SpdxPackage(name="pkg2", spdx_id="SPDXRef-test-1")
-        ]
+            SpdxPackage(name="pkg2", spdx_id="SPDXRef-test-1"),
+        ],
     )
 
     errors, warnings = SpdxValidator.validate_document(doc)

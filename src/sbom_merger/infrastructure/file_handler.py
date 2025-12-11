@@ -37,38 +37,29 @@ class FileHandler:
 
         root_sbom = root_sboms[0]
 
-        dependency_sboms = [
-            f for f in dependencies_dir.glob("*.json")
-            if f.is_file()
-        ]
+        dependency_sboms = [f for f in dependencies_dir.glob("*.json") if f.is_file()]
 
         if not dependency_sboms:
-            raise FileNotFoundError(
-                f"No dependency SBOMs found in {dependencies_dir}"
-            )
+            raise FileNotFoundError(f"No dependency SBOMs found in {dependencies_dir}")
 
         return root_sbom, dependency_sboms
 
     @staticmethod
-    def save_merged_sbom(
-        sbom_data: dict,
-        output_path: Path
-    ) -> None:
+    def save_merged_sbom(sbom_data: dict, output_path: Path) -> None:
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(output_path, 'w', encoding='utf-8') as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             json.dump(sbom_data, f, indent=2)
 
     @staticmethod
     def get_output_path(
-        root_sbom_path: Path,
-        output_dir: Optional[Path] = None
+        root_sbom_path: Path, output_dir: Optional[Path] = None
     ) -> Path:
         if output_dir:
             output_dir.mkdir(parents=True, exist_ok=True)
-            base_name = root_sbom_path.stem.replace('_root', '_merged')
+            base_name = root_sbom_path.stem.replace("_root", "_merged")
             return output_dir / f"{base_name}.json"
         else:
             parent = root_sbom_path.parent
-            base_name = root_sbom_path.stem.replace('_root', '_merged')
+            base_name = root_sbom_path.stem.replace("_root", "_merged")
             return parent / f"{base_name}.json"

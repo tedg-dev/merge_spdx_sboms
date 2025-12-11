@@ -6,25 +6,33 @@ from ..domain.models import MergeResult, MergeStatistics
 class MergeReporter:
 
     @staticmethod
-    def generate_report(
-        result: MergeResult,
-        output_path: Optional[Path] = None
-    ) -> str:
+    def generate_report(result: MergeResult, output_path: Optional[Path] = None) -> str:
         report_lines = []
         report_lines.append("# SPDX SBOM Merge Report\n")
-        report_lines.append(f"**Generated:** {result.merged_document.creation_info.get('created', 'Unknown')}\n")
+        report_lines.append(
+            f"**Generated:** {result.merged_document.creation_info.get('created', 'Unknown')}\n"
+        )
         report_lines.append("---\n")
 
         report_lines.append("## Merge Statistics\n")
         stats = result.statistics
-        report_lines.append(f"- **Total SBOMs Processed:** {stats.total_sboms_processed}")
+        report_lines.append(
+            f"- **Total SBOMs Processed:** {stats.total_sboms_processed}"
+        )
         report_lines.append(f"- **Root Packages:** {stats.root_packages_count}")
-        report_lines.append(f"- **Dependency Packages:** {stats.dependency_packages_count}")
-        report_lines.append(f"- **Total Packages in Merged SBOM:** {stats.total_packages}")
-        report_lines.append(f"- **Duplicate Packages Removed:** {stats.duplicate_packages_removed}")
+        report_lines.append(
+            f"- **Dependency Packages:** {stats.dependency_packages_count}"
+        )
+        report_lines.append(
+            f"- **Total Packages in Merged SBOM:** {stats.total_packages}"
+        )
+        report_lines.append(
+            f"- **Duplicate Packages Removed:** {stats.duplicate_packages_removed}"
+        )
         report_lines.append(f"- **Total Relationships:** {stats.total_relationships}")
-        report_lines.append(f"- **Processing Time:** {stats.processing_time_seconds:.2f} seconds\n")
-
+        report_lines.append(
+            f"- **Processing Time:** {stats.processing_time_seconds:.2f} seconds\n"
+        )
 
         report_lines.append("---\n")
 
@@ -40,7 +48,9 @@ class MergeReporter:
                 report_lines.append("")
 
             if stats.validation_warnings:
-                report_lines.append(f"### ⚠️ Warnings ({len(stats.validation_warnings)})\n")
+                report_lines.append(
+                    f"### ⚠️ Warnings ({len(stats.validation_warnings)})\n"
+                )
                 for warning in stats.validation_warnings:
                     report_lines.append(f"- {warning}")
                 report_lines.append("")
@@ -48,10 +58,16 @@ class MergeReporter:
         report_lines.append("---\n")
 
         report_lines.append("## Merged Document Details\n")
-        report_lines.append(f"- **SPDX Version:** {result.merged_document.spdx_version}")
+        report_lines.append(
+            f"- **SPDX Version:** {result.merged_document.spdx_version}"
+        )
         report_lines.append(f"- **Document Name:** {result.merged_document.name}")
-        report_lines.append(f"- **Document Namespace:** {result.merged_document.document_namespace}")
-        report_lines.append(f"- **Data License:** {result.merged_document.data_license}\n")
+        report_lines.append(
+            f"- **Document Namespace:** {result.merged_document.document_namespace}"
+        )
+        report_lines.append(
+            f"- **Data License:** {result.merged_document.data_license}\n"
+        )
 
         if result.merged_document.comment:
             report_lines.append("### Comment")
@@ -75,7 +91,7 @@ class MergeReporter:
 
         if output_path:
             report_path = output_path.parent / f"{output_path.stem}_merge_report.md"
-            with open(report_path, 'w', encoding='utf-8') as f:
+            with open(report_path, "w", encoding="utf-8") as f:
                 f.write(report_content)
 
         return report_content
