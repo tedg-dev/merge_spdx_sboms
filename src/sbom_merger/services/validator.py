@@ -84,7 +84,7 @@ class SpdxValidator:
 
         for doc in documents:
             if not Config.is_supported_spdx_version(doc.spdx_version):
-                supported = ', '.join(Config.SUPPORTED_SPDX_VERSIONS)
+                supported = ", ".join(Config.SUPPORTED_SPDX_VERSIONS)
                 errors.append(
                     f"Unsupported SPDX version: {doc.spdx_version}. "
                     f"Supported versions: {supported}"
