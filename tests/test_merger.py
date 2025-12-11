@@ -1,5 +1,3 @@
-import pytest
-from pathlib import Path
 from sbom_merger.services.merger import SbomMerger
 from sbom_merger.infrastructure.file_handler import FileHandler
 

@@ -1,4 +1,3 @@
-import pytest
 from sbom_merger.services.validator import SpdxValidator
 from sbom_merger.domain.models import SpdxDocument, SpdxPackage
 

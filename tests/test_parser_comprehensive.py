@@ -1,6 +1,5 @@
 import tempfile
 from pathlib import Path
-import json
 from sbom_merger.services.parser import SpdxParser
 from sbom_merger.domain.models import SpdxDocument, SpdxPackage
 

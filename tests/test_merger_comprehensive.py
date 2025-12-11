@@ -2,7 +2,6 @@ from pathlib import Path
 import tempfile
 import json
 from sbom_merger.services.merger import SbomMerger
-from sbom_merger.domain.models import SpdxDocument
 
 
 def test_merger_handles_error_in_parsing():

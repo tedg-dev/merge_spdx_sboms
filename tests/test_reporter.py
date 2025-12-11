@@ -1,4 +1,3 @@
-import pytest
 from pathlib import Path
 import tempfile
 from sbom_merger.services.reporter import MergeReporter

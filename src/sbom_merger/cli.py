@@ -166,7 +166,8 @@ def main(
                     f"Add merged SBOM from {root_sbom.name}",
                 )
                 click.echo(
-                    f"✅ Successfully pushed to {github_owner}/{github_repo}:{github_branch}"
+                    f"✅ Successfully pushed to "
+                    f"{github_owner}/{github_repo}:{github_branch}"
                 )
                 click.echo(f"   Path: {github_path}")
             except Exception as e:
@@ -177,9 +178,8 @@ def main(
         click.echo("✅ SBOM merge completed successfully!")
         click.echo("=" * 70)
         click.echo(f"\nMerged SBOM: {output_path}")
-        click.echo(
-            f"Merge Report: {output_path.parent / f'{output_path.stem}_merge_report.md'}"
-        )
+        report_path = output_path.parent / f"{output_path.stem}_merge_report.md"
+        click.echo(f"Merge Report: {report_path}")
 
     except FileNotFoundError as e:
         click.echo(f"\n❌ Error: {e}")

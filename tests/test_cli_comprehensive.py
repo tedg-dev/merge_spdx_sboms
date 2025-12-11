@@ -2,7 +2,6 @@ from click.testing import CliRunner
 from sbom_merger.cli import main
 import tempfile
 from pathlib import Path
-import json
 
 
 def test_cli_verbose_output(temp_sbom_dir):

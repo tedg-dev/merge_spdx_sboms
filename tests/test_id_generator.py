@@ -1,4 +1,3 @@
-import pytest
 from sbom_merger.services.id_generator import SpdxIdGenerator
 
 
