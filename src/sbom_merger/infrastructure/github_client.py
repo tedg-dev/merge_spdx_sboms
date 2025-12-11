@@ -1,5 +1,5 @@
 import requests
-from typing import Optional
+from typing import Optional, Dict, Any
 from pathlib import Path
 
 
@@ -89,7 +89,8 @@ class GitHubClient:
         response = self.session.post(url, json=data)
 
         if response.status_code == 201:
-            return response.json()
+            result: Dict[str, Any] = response.json()
+            return result
         else:
             raise Exception(
                 f"Failed to create release: {response.status_code} - "

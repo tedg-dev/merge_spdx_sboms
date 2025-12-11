@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict
 from ..domain.models import MergeResult
 
 
@@ -77,7 +77,7 @@ class MergeReporter:
         report_lines.append("---\n")
 
         report_lines.append("## Package Sources\n")
-        source_counts = {}
+        source_counts: Dict[str, int] = {}
         for pkg in result.merged_document.packages:
             source = pkg.source_sbom or "Unknown"
             source_counts[source] = source_counts.get(source, 0) + 1

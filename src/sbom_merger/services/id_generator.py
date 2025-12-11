@@ -1,6 +1,6 @@
 import hashlib
 import re
-from typing import Optional
+from typing import List, Optional, Any
 
 
 class SpdxIdGenerator:
@@ -17,19 +17,21 @@ class SpdxIdGenerator:
             if ref.get("referenceType") == "purl":
                 purl = ref.get("referenceLocator", "")
                 if purl.startswith("pkg:"):
-                    ecosystem = purl.split(":")[1].split("/")[0]
+                    ecosystem: str = purl.split(":")[1].split("/")[0]
                     return ecosystem
         return "unknown"
 
     @staticmethod
     def generate_hash(name: str, version: Optional[str] = None) -> str:
         content = f"{name}:{version}" if version else name
-        hash_obj = hashlib.sha256(content.encode("utf-8"))
-        return hash_obj.hexdigest()[:6]
+        hash_value: str = hashlib.sha256(content.encode()).hexdigest()[:6]
+        return hash_value
 
     @staticmethod
     def generate_spdx_id(
-        name: str, version: Optional[str] = None, external_refs: Optional[list] = None
+        name: str,
+        version: Optional[str] = None,
+        external_refs: Optional[List[Any]] = None,
     ) -> str:
         ecosystem = SpdxIdGenerator.extract_ecosystem(external_refs or [])
         sanitized_name = SpdxIdGenerator.sanitize_name(name)
