@@ -168,7 +168,7 @@ fi
 echo "Available commands:"
 echo "  ./setup_environment.sh --test            Run tests with coverage"
 echo "  ./setup_environment.sh --run             Run the application"
-echo "  ./setup_environment.sh --coverage        Generate coverage report"
+echo "  ./setup_environment.sh --coverage       FAIL Required test coverage of 95% not reached."
 echo "  ./setup_environment.sh --force-install   Force reinstall dependencies"
 echo ""
 
