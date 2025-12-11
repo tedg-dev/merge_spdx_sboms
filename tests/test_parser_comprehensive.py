@@ -1,7 +1,7 @@
 import tempfile
 from pathlib import Path
 from sbom_merger.services.parser import SpdxParser
-from sbom_merger.domain.models import SpdxDocument, SpdxPackage
+from sbom_merger.domain.models import SpdxDocument
 
 
 def test_parse_invalid_json():

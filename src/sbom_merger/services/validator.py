@@ -52,13 +52,17 @@ class SpdxValidator:
         for rel in document.relationships:
             if rel.spdx_element_id not in all_ids:
                 warnings.append(
-                    f"Relationship references unknown SPDXID: {rel.spdx_element_id}. "
-                    f"Relationship element '{rel.spdx_element_id}' not found in document packages"
+                    f"Relationship references unknown SPDXID: "
+                    f"{rel.spdx_element_id}. "
+                    f"Relationship element '{rel.spdx_element_id}' "
+                    f"not found in document packages"
                 )
             if rel.related_spdx_element not in all_ids:
                 warnings.append(
-                    f"Relationship references unknown SPDXID: {rel.related_spdx_element}. "
-                    f"Related element '{rel.related_spdx_element}' not found in document packages"
+                    f"Relationship references unknown SPDXID: "
+                    f"{rel.related_spdx_element}. "
+                    f"Related element '{rel.related_spdx_element}' "
+                    f"not found in document packages"
                 )
 
         return errors, warnings
@@ -80,8 +84,10 @@ class SpdxValidator:
 
         for doc in documents:
             if not Config.is_supported_spdx_version(doc.spdx_version):
+                supported = ', '.join(Config.get_supported_spdx_versions())
                 errors.append(
-                    f"SBOM '{doc.source_file}' has unsupported version: {doc.spdx_version}"
+                    f"Unsupported SPDX version: {doc.spdx_version}. "
+                    f"Supported versions: {supported}"
                 )
 
         return errors, warnings
