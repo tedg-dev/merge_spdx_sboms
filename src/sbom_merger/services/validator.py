@@ -52,11 +52,13 @@ class SpdxValidator:
         for rel in document.relationships:
             if rel.spdx_element_id not in all_ids:
                 warnings.append(
-                    f"Relationship references unknown SPDXID: {rel.spdx_element_id}"
+                    f"Relationship references unknown SPDXID: {rel.spdx_element_id}. "
+                    f"Relationship element '{rel.spdx_element_id}' not found in document packages"
                 )
             if rel.related_spdx_element not in all_ids:
                 warnings.append(
-                    f"Relationship references unknown SPDXID: {rel.related_spdx_element}"
+                    f"Relationship references unknown SPDXID: {rel.related_spdx_element}. "
+                    f"Related element '{rel.related_spdx_element}' not found in document packages"
                 )
 
         return errors, warnings

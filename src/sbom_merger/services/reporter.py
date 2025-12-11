@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Optional
-from ..domain.models import MergeResult, MergeStatistics
+from ..domain.models import MergeResult
 
 
 class MergeReporter:
@@ -10,7 +10,8 @@ class MergeReporter:
         report_lines = []
         report_lines.append("# SPDX SBOM Merge Report\n")
         report_lines.append(
-            f"**Generated:** {result.merged_document.creation_info.get('created', 'Unknown')}\n"
+            f"**Generated:** "
+            f"{result.merged_document.creation_info.get('created', 'Unknown')}\n"
         )
         report_lines.append("---\n")
 

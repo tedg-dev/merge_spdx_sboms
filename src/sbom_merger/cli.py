@@ -108,18 +108,20 @@ def main(
         FileHandler.save_merged_sbom(serialized, output_path)
 
         click.echo("📊 Generating merge report...")
-        report = MergeReporter.generate_report(result, output_path)
+        MergeReporter.generate_report(result, output_path)
 
         if result.statistics.validation_errors:
             click.echo(
-                f"\n⚠️  {len(result.statistics.validation_errors)} validation errors found"
+                f"\n⚠️  {len(result.statistics.validation_errors)} "
+                f"validation errors found"
             )
             for error in result.statistics.validation_errors:
                 click.echo(f"   ❌ {error}")
 
         if result.statistics.validation_warnings:
             click.echo(
-                f"\n⚠️  {len(result.statistics.validation_warnings)} validation warnings found"
+                f"\n⚠️  {len(result.statistics.validation_warnings)} "
+                f"validation warnings found"
             )
             if verbose:
                 for warning in result.statistics.validation_warnings:
@@ -128,7 +130,8 @@ def main(
         if push_to_github:
             if not github_owner or not github_repo:
                 click.echo(
-                    "\n❌ Error: --github-owner and --github-repo required with --push-to-github"
+                    "\n❌ Error: --github-owner and --github-repo "
+                    "required with --push-to-github"
                 )
                 sys.exit(1)
 
@@ -138,12 +141,17 @@ def main(
             if account:
                 gh_account = config.get_account(account)
                 if not gh_account:
-                    click.echo(f"❌ Error: Account '{account}' not found in {key_file}")
+                    click.echo(
+                        f"❌ Error: Account '{account}' not found in "
+                        f"{key_file}"
+                    )
                     sys.exit(1)
             else:
                 gh_account = config.get_default_account()
                 if not gh_account:
-                    click.echo(f"❌ Error: No accounts found in {key_file}")
+                    click.echo(
+                        f"❌ Error: No accounts found in {key_file}"
+                    )
                     sys.exit(1)
 
             click.echo(f"✅ Using GitHub account: {gh_account.username}")
