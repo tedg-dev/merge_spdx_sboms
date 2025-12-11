@@ -1,0 +1,12 @@
+{
+  "accounts": [
+    {
+      "username": "your-github-username",
+      "token": "ghp_yourPersonalAccessToken"
+    },
+    {
+      "username": "your-work-account",
+      "token": "ghp_yourWorkAccessToken"
+    }
+  ]
+}

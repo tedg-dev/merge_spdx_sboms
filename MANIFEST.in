@@ -1,0 +1,10 @@
+include README.md
+include LICENSE
+include requirements.txt
+include requirements-dev.txt
+include setup_environment.sh
+recursive-include src *.py
+recursive-exclude tests *
+recursive-exclude .github *
+global-exclude __pycache__
+global-exclude *.py[co]
