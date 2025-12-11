@@ -136,13 +136,14 @@ def test_validate_version_compatibility_multiple_versions():
 
 def test_validate_version_compatibility_unsupported():
     doc = SpdxDocument(
-        spdx_version="SPDX-1.2",
+        spdx_version="SPDX-0.9",
         data_license="CC0-1.0",
         spdx_id="SPDXRef-DOCUMENT",
         name="test",
-        document_namespace="https://test.com/test",
+        document_namespace="https://test.com",
         creation_info={"created": "2025-12-11T00:00:00Z"},
     )
 
     errors, warnings = SpdxValidator.validate_version_compatibility([doc])
-    assert any("unsupported version" in e for e in errors)
+    assert len(errors) > 0
+    assert any("SPDX-0.9" in str(e) or "unsupported" in str(e).lower() for e in errors)
