@@ -142,16 +142,13 @@ def main(
                 gh_account = config.get_account(account)
                 if not gh_account:
                     click.echo(
-                        f"❌ Error: Account '{account}' not found in "
-                        f"{key_file}"
+                        f"❌ Error: Account '{account}' not found in " f"{key_file}"
                     )
                     sys.exit(1)
             else:
                 gh_account = config.get_default_account()
                 if not gh_account:
-                    click.echo(
-                        f"❌ Error: No accounts found in {key_file}"
-                    )
+                    click.echo(f"❌ Error: No accounts found in {key_file}")
                     sys.exit(1)
 
             click.echo(f"✅ Using GitHub account: {gh_account.username}")
