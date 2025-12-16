@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "merge-spdx-sboms"
-version = "1.0.0"
+dynamic = ["version"]
 description = "Merge SPDX SBOM dependencies into a comprehensive root SBOM"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -48,6 +48,9 @@ merge-spdx-sboms = "sbom_merger.cli:main"
 Homepage = "https://github.com/tedg-dev/merge_spdx_sboms"
 Repository = "https://github.com/tedg-dev/merge_spdx_sboms"
 Issues = "https://github.com/tedg-dev/merge_spdx_sboms/issues"
+
+[tool.setuptools.dynamic]
+version = {file = "VERSION"}
 
 [tool.black]
 line-length = 88
