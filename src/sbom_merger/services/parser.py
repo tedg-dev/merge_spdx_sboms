@@ -100,4 +100,4 @@ class SpdxParser:
         if document.comment:
             sbom_dict["comment"] = document.comment
 
-        return {"sbom": sbom_dict}
+        return sbom_dict

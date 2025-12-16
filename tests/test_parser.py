@@ -58,7 +58,6 @@ def test_serialize_to_json():
 
     result = SpdxParser.serialize_to_json(doc)
 
-    assert "sbom" in result
-    assert result["sbom"]["spdxVersion"] == "SPDX-2.3"
-    assert len(result["sbom"]["packages"]) == 1
-    assert result["sbom"]["comment"] == "Test comment"
+    assert result["spdxVersion"] == "SPDX-2.3"
+    assert len(result["packages"]) == 1
+    assert result["comment"] == "Test comment"

@@ -116,4 +116,4 @@ def test_parser_serialize_with_all_fields():
     )
 
     result = SpdxParser.serialize_to_json(doc)
-    assert result["sbom"]["packages"][0]["versionInfo"] == "1.0.0"
+    assert result["packages"][0]["versionInfo"] == "1.0.0"
