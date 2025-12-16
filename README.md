@@ -470,6 +470,7 @@ MIT License - see [LICENSE](LICENSE) file for details
 - **[API Reference](docs/API.md)** - Python API and CLI documentation
 - **[Testing Guide](docs/TESTING.md)** - Testing procedures and coverage
 - **[GitHub Setup](docs/GITHUB_SETUP.md)** - Repository configuration and CI/CD
+- **[Versioning Guide](docs/VERSIONING.md)** - Release process and semantic versioning
 - **[Usage Examples](USAGE.md)** - Quick start examples and workflows
 
 ## Support

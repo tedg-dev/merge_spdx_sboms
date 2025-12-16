@@ -2,6 +2,7 @@ import time
 from pathlib import Path
 from typing import List, Dict, Set
 from datetime import datetime
+from ..__version__ import __version__
 from ..domain.models import (
     SpdxDocument,
     SpdxPackage,
@@ -161,7 +162,7 @@ class SbomMerger:
         creation_info["created"] = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
         if "creators" not in creation_info:
             creation_info["creators"] = []
-        creation_info["creators"].append("Tool: merge-spdx-sboms-v1.0.0")
+        creation_info["creators"].append(f"Tool: merge-spdx-sboms-v{__version__}")
 
         merged_doc = SpdxDocument(
             spdx_version=root_doc.spdx_version,

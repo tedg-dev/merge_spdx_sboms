@@ -1,6 +1,7 @@
 import click
 import sys
 from pathlib import Path
+from .__version__ import __version__
 from .services.merger import SbomMerger
 from .services.parser import SpdxParser
 from .services.reporter import MergeReporter
@@ -72,7 +73,7 @@ def main(
     verbose,
 ):
     click.echo("=" * 70)
-    click.echo("SPDX SBOM Merger v1.0.0")
+    click.echo(f"SPDX SBOM Merger v{__version__}")
     click.echo("=" * 70)
 
     try:

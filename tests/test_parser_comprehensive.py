@@ -30,8 +30,7 @@ def test_serialize_minimal_document():
 
     result = SpdxParser.serialize_to_json(doc)
 
-    assert "sbom" in result
-    assert result["sbom"]["name"] == "minimal"
+    assert result["name"] == "minimal"
 
 
 def test_serialize_with_empty_lists():
@@ -48,8 +47,8 @@ def test_serialize_with_empty_lists():
 
     result = SpdxParser.serialize_to_json(doc)
 
-    assert result["sbom"]["packages"] == []
-    assert result["sbom"]["relationships"] == []
+    assert result["packages"] == []
+    assert result["relationships"] == []
 
 
 def test_parse_file_not_found():
