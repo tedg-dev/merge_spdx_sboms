@@ -5,6 +5,7 @@ from .__version__ import __version__
 from .services.merger import SbomMerger
 from .services.parser import SpdxParser
 from .services.reporter import MergeReporter
+from .services.spdx_spec_validator import validate_spdx_output
 from .infrastructure.config import Config
 from .infrastructure.file_handler import FileHandler
 from .infrastructure.github_client import GitHubClient
@@ -110,6 +111,30 @@ def main(
 
         click.echo("📊 Generating merge report...")
         MergeReporter.generate_report(result, output_path)
+
+        # Validate merged SBOM against SPDX specification using spdx-tools
+        click.echo("🔍 Validating merged SBOM against SPDX 2.3 specification...")
+        validation_result = validate_spdx_output(output_path)
+
+        if validation_result.is_valid:
+            click.echo(
+                f"✅ SPDX validation passed ({validation_result.validator_used})"
+            )
+        else:
+            click.echo(
+                f"❌ SPDX validation failed with {len(validation_result.errors)} errors:"
+            )
+            for error in validation_result.errors[:10]:
+                click.echo(f"   ❌ {error[:100]}")
+            if len(validation_result.errors) > 10:
+                click.echo(
+                    f"   ... and {len(validation_result.errors) - 10} more errors"
+                )
+
+        if validation_result.warnings and verbose:
+            click.echo(f"⚠️  {len(validation_result.warnings)} validation warnings")
+            for warning in validation_result.warnings[:5]:
+                click.echo(f"   ⚠️  {warning[:100]}")
 
         if result.statistics.validation_errors:
             click.echo(
