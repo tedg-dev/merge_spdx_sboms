@@ -90,9 +90,9 @@ class TestSpdxIdValidation:
 
         for name in test_names:
             spdx_id = SpdxIdGenerator.generate_spdx_id(name, "1.0.0", refs)
-            assert SpdxIdGenerator.is_valid_spdx_id(spdx_id), (
-                f"Generated SPDXID '{spdx_id}' for '{name}' is invalid"
-            )
+            assert SpdxIdGenerator.is_valid_spdx_id(
+                spdx_id
+            ), f"Generated SPDXID '{spdx_id}' for '{name}' is invalid"
 
 
 def test_extract_ecosystem():

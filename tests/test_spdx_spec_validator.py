@@ -100,9 +100,7 @@ class TestSpdxSpecValidator:
         """Invalid JSON file should return error."""
         validator = SpdxSpecValidator()
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             f.write("{ invalid json }")
             temp_path = Path(f.name)
 
