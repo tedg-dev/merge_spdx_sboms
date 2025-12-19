@@ -5,7 +5,7 @@ from .__version__ import __version__
 from .services.merger import SbomMerger
 from .services.parser import SpdxParser
 from .services.reporter import MergeReporter
-from .services.spdx_spec_validator import validate_spdx_output
+from .services.spdx_spec_validator import SpdxSpecValidator
 from .infrastructure.config import Config
 from .infrastructure.file_handler import FileHandler
 from .infrastructure.github_client import GitHubClient
@@ -105,24 +105,23 @@ def main(
 
         output_path = FileHandler.get_output_path(root_sbom, output_dir)
 
-        click.echo(f"\n💾 Saving merged SBOM to: {output_path}")
+        # Serialize merged document to JSON
         serialized = SpdxParser.serialize_to_json(result.merged_document)
-        FileHandler.save_merged_sbom(serialized, output_path)
 
-        click.echo("📊 Generating merge report...")
-        MergeReporter.generate_report(result, output_path)
-
-        # Validate merged SBOM against SPDX specification using spdx-tools
+        # Validate BEFORE saving - if validation fails, don't create files
         click.echo("🔍 Validating merged SBOM against SPDX 2.3 specification...")
-        validation_result = validate_spdx_output(output_path)
+        validator = SpdxSpecValidator()
+        validation_result = validator.validate_json_data(serialized)
 
-        if validation_result.is_valid:
+        if validation_result.warnings and verbose:
+            click.echo(f"⚠️  {len(validation_result.warnings)} validation warnings")
+            for warning in validation_result.warnings[:5]:
+                click.echo(f"   ⚠️  {warning[:100]}")
+
+        if not validation_result.is_valid:
             click.echo(
-                f"✅ SPDX validation passed ({validation_result.validator_used})"
-            )
-        else:
-            click.echo(
-                f"❌ SPDX validation failed with {len(validation_result.errors)} errors:"
+                f"\n❌ SPDX validation failed with "
+                f"{len(validation_result.errors)} errors:"
             )
             for error in validation_result.errors[:10]:
                 click.echo(f"   ❌ {error[:100]}")
@@ -130,11 +129,17 @@ def main(
                 click.echo(
                     f"   ... and {len(validation_result.errors) - 10} more errors"
                 )
+            click.echo("\n❌ Merged SBOM NOT saved due to validation errors.")
+            sys.exit(1)
 
-        if validation_result.warnings and verbose:
-            click.echo(f"⚠️  {len(validation_result.warnings)} validation warnings")
-            for warning in validation_result.warnings[:5]:
-                click.echo(f"   ⚠️  {warning[:100]}")
+        click.echo(f"✅ SPDX validation passed ({validation_result.validator_used})")
+
+        # Only save files if validation passed
+        click.echo(f"\n💾 Saving merged SBOM to: {output_path}")
+        FileHandler.save_merged_sbom(serialized, output_path)
+
+        click.echo("📊 Generating merge report...")
+        MergeReporter.generate_report(result, output_path)
 
         if result.statistics.validation_errors:
             click.echo(
