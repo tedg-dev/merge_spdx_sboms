@@ -19,11 +19,10 @@ def _read_version() -> str:
     # Fallback: try to get from package metadata
     try:
         from importlib.metadata import version
-        return version("merge-spdx-sboms")
-    except Exception:
-        pass
 
-    return "0.0.0-dev"
+        return version("merge-spdx-sboms")
+    except Exception:  # nosec B110 - intentional fallback to dev version
+        return "0.0.0-dev"
 
 
 __version__ = _read_version()
