@@ -1,9 +1,22 @@
 from typing import List, Tuple
 from ..domain.models import SpdxDocument
 from ..infrastructure.config import Config
+from .id_generator import SpdxIdGenerator
 
 
 class SpdxValidator:
+
+    @staticmethod
+    def validate_spdx_id_format(spdx_id: str, context: str = "") -> List[str]:
+        """Validate SPDXID format per SPDX 2.3 specification.
+
+        Per SPDX 2.3 spec, SPDXID format is "SPDXRef-" + idstring where
+        idstring can only contain: A-Za-z0-9.- (NO underscores allowed)
+        """
+        errors = SpdxIdGenerator.validate_spdx_id(spdx_id)
+        if errors and context:
+            errors = [f"{context}: {e}" for e in errors]
+        return errors
 
     @staticmethod
     def validate_document(document: SpdxDocument) -> Tuple[List[str], List[str]]:
@@ -24,6 +37,12 @@ class SpdxValidator:
 
         if not document.spdx_id:
             errors.append("Document SPDXID is missing")
+        else:
+            # Validate document SPDXID format
+            id_errors = SpdxValidator.validate_spdx_id_format(
+                document.spdx_id, "Document"
+            )
+            errors.extend(id_errors)
 
         if not document.document_namespace:
             errors.append("Document namespace is missing")
@@ -38,10 +57,17 @@ class SpdxValidator:
         for pkg in document.packages:
             if not pkg.spdx_id:
                 errors.append(f"Package '{pkg.name}' is missing SPDXID")
-            elif pkg.spdx_id in spdx_ids:
-                errors.append(f"Duplicate SPDXID found: {pkg.spdx_id}")
             else:
-                spdx_ids.add(pkg.spdx_id)
+                # Validate package SPDXID format per SPDX 2.3 spec
+                id_errors = SpdxValidator.validate_spdx_id_format(
+                    pkg.spdx_id, f"Package '{pkg.name}'"
+                )
+                errors.extend(id_errors)
+
+                if pkg.spdx_id in spdx_ids:
+                    errors.append(f"Duplicate SPDXID found: {pkg.spdx_id}")
+                else:
+                    spdx_ids.add(pkg.spdx_id)
 
             if not pkg.name:
                 errors.append(f"Package with SPDXID '{pkg.spdx_id}' has no name")
@@ -50,6 +76,19 @@ class SpdxValidator:
         all_ids.add(document.spdx_id)
 
         for rel in document.relationships:
+            # Validate relationship SPDXID formats
+            if rel.spdx_element_id:
+                id_errors = SpdxValidator.validate_spdx_id_format(
+                    rel.spdx_element_id, "Relationship element"
+                )
+                errors.extend(id_errors)
+
+            if rel.related_spdx_element:
+                id_errors = SpdxValidator.validate_spdx_id_format(
+                    rel.related_spdx_element, "Related element"
+                )
+                errors.extend(id_errors)
+
             if rel.spdx_element_id not in all_ids:
                 warnings.append(
                     f"Relationship references unknown SPDXID: "
