@@ -16,11 +16,44 @@ from .id_generator import SpdxIdGenerator
 
 
 class SbomMerger:
+    # ==========================================================================
+    # TEMPORARY WORKAROUND - REMOVE WHEN CORONA API SUPPORTS THESE LICENSES
+    # ==========================================================================
+    # Issue: Corona API rejects "Unicode-3.0" as "invalid license expression"
+    # Reason: Unicode-3.0 was added to SPDX license list on Dec 3, 2025
+    #         Corona's license database hasn't been updated yet
+    # Affected: 19 Rust/Cargo ICU packages (icu_properties, yoke, litemap, etc.)
+    # Error: HTTP 422 - "packages.<index>.concluded_license.license invalid"
+    # Date Added: 2025-12-19
+    # TODO: Remove this workaround once Corona API supports Unicode-3.0
+    # ==========================================================================
+    UNSUPPORTED_LICENSES_WORKAROUND = {
+        "Unicode-3.0": "NOASSERTION",
+        # Add other unsupported licenses here as needed
+    }
+    # ==========================================================================
+    # END TEMPORARY WORKAROUND
+    # ==========================================================================
 
     def __init__(self):
         self.parser = SpdxParser()
         self.validator = SpdxValidator()
         self.id_generator = SpdxIdGenerator()
+
+    def _sanitize_license_for_corona(self, license_value: str | None) -> str | None:
+        """
+        TEMPORARY WORKAROUND - Replace unsupported licenses with NOASSERTION.
+
+        This is needed because Corona API hasn't updated its license database
+        to include newly-added SPDX licenses like Unicode-3.0 (added Dec 2025).
+
+        TODO: Remove this method once Corona API supports these licenses.
+        """
+        if license_value is None:
+            return None
+        if license_value in self.UNSUPPORTED_LICENSES_WORKAROUND:
+            return self.UNSUPPORTED_LICENSES_WORKAROUND[license_value]
+        return license_value
 
     def merge_sboms(
         self, root_sbom_path: Path, dependency_sbom_paths: List[Path]
@@ -83,13 +116,17 @@ class SbomMerger:
             id_mapping[pkg.spdx_id] = new_id
 
             if new_id not in seen_ids:
+                # TEMPORARY: Sanitize license for Corona API compatibility
+                sanitized_license = self._sanitize_license_for_corona(
+                    pkg.license_concluded
+                )
                 merged_pkg = SpdxPackage(
                     name=pkg.name,
                     spdx_id=new_id,
                     download_location=pkg.download_location,
                     files_analyzed=pkg.files_analyzed,
                     version_info=pkg.version_info,
-                    license_concluded=pkg.license_concluded,
+                    license_concluded=sanitized_license,
                     copyright_text=pkg.copyright_text,
                     external_refs=pkg.external_refs,
                     source_sbom=pkg.source_sbom,
@@ -107,13 +144,17 @@ class SbomMerger:
                 id_mapping[full_original_id] = new_id
 
                 if new_id not in seen_ids:
+                    # TEMPORARY: Sanitize license for Corona API compatibility
+                    sanitized_license = self._sanitize_license_for_corona(
+                        pkg.license_concluded
+                    )
                     merged_pkg = SpdxPackage(
                         name=pkg.name,
                         spdx_id=new_id,
                         download_location=pkg.download_location,
                         files_analyzed=pkg.files_analyzed,
                         version_info=pkg.version_info,
-                        license_concluded=pkg.license_concluded,
+                        license_concluded=sanitized_license,
                         copyright_text=pkg.copyright_text,
                         external_refs=pkg.external_refs,
                         source_sbom=pkg.source_sbom,
