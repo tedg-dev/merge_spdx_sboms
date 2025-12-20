@@ -40,7 +40,7 @@ class SbomMerger:
         self.validator = SpdxValidator()
         self.id_generator = SpdxIdGenerator()
 
-    def _sanitize_license_for_corona(self, license_value: str) -> str:
+    def _sanitize_license_for_corona(self, license_value: str | None) -> str | None:
         """
         TEMPORARY WORKAROUND - Replace unsupported licenses with NOASSERTION.
 
@@ -49,6 +49,8 @@ class SbomMerger:
 
         TODO: Remove this method once Corona API supports these licenses.
         """
+        if license_value is None:
+            return None
         if license_value in self.UNSUPPORTED_LICENSES_WORKAROUND:
             return self.UNSUPPORTED_LICENSES_WORKAROUND[license_value]
         return license_value
