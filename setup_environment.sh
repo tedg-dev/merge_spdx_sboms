@@ -31,7 +31,7 @@ check_python_version() {
 # Check if already in virtual environment
 if [ -n "$VIRTUAL_ENV" ]; then
     echo "✅ Already in virtual environment: $VIRTUAL_ENV"
-    PYTHON_CMD="python"
+    PYTHON_CMD="python3"
     IN_VENV=true
 else
     IN_VENV=false
@@ -111,11 +111,11 @@ fi
 DEPS_INSTALLED=false
 PKG_INSTALLED=false
 
-if python -c "import click, spdx_tools, requests, pydantic" 2>/dev/null; then
+if python3 -c "import click, spdx_tools, requests, pydantic" 2>/dev/null; then
     DEPS_INSTALLED=true
 fi
 
-if python -c "import sbom_merger" 2>/dev/null; then
+if python3 -c "import sbom_merger" 2>/dev/null; then
     PKG_INSTALLED=true
 fi
 
@@ -154,6 +154,12 @@ if [ "$SKIP_INSTALL" != true ]; then
     echo "📦 Installing package in development mode..."
     pip install -e . --quiet
 fi
+
+# Always upgrade spdx-tools to ensure latest license database
+# spdx-tools contains the SPDX license list which is updated regularly
+# Keeping it current prevents validation errors for newly-added licenses
+echo "⬆️  Upgrading spdx-tools (license database)..."
+pip install --upgrade spdx-tools --quiet
 
 echo ""
 echo "======================================================================"
@@ -198,10 +204,10 @@ elif [ "$1" == "--run" ]; then
     echo "Running SPDX SBOM Merger"
     echo "======================================================================"
     echo ""
-    python -m sbom_merger.cli --help
+    python3 -m sbom_merger.cli --help
     echo ""
     echo "Example usage:"
-    echo "  python -m sbom_merger.cli --dependencies-dir /path/to/dependencies --verbose"
+    echo "  python3 -m sbom_merger.cli --dependencies-dir /path/to/dependencies --verbose"
 fi
 
 echo ""

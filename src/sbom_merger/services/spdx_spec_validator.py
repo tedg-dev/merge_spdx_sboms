@@ -8,9 +8,11 @@ extensible for future SPDX versions.
 import importlib.util
 import json
 import tempfile
+import threading
+import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Callable, Optional
 
 from ..infrastructure.config import Config
 
@@ -39,8 +41,14 @@ class SpdxSpecValidator:
 
     SUPPORTED_VERSIONS = ["SPDX-2.3"]
 
-    def __init__(self):
+    def __init__(self, progress_callback: Optional[Callable[[str], None]] = None):
         self._spdx_tools_available = self._check_spdx_tools()
+        self._progress_callback = progress_callback
+
+    def _emit_progress(self, message: str):
+        """Emit a progress message if callback is set."""
+        if self._progress_callback:
+            self._progress_callback(message)
 
     @staticmethod
     def _check_spdx_tools() -> bool:
@@ -81,12 +89,28 @@ class SpdxSpecValidator:
         # Get SPDX version
         spdx_version = spdx_data.get("spdxVersion", "unknown")
 
+        # Calculate size for progress reporting
+        num_packages = len(spdx_data.get("packages", []))
+        num_relationships = len(spdx_data.get("relationships", []))
+
         # First, do our own SPDXID validation (catches underscores)
+        self._emit_progress(f"Checking {num_packages} package IDs...")
         id_errors = self._validate_all_spdx_ids(spdx_data)
         errors.extend(id_errors)
+        self._emit_progress("ID validation complete")
 
         # Then use spdx-tools for full spec validation
         if self._spdx_tools_available:
+            if num_packages > 1000:
+                # Estimate ~25% higher so users are happy when it finishes early
+                est_minutes = max(1, (num_packages * 16) // 10000)
+                self._emit_progress(
+                    f"Running spdx-tools validation ({num_packages} packages, "
+                    f"{num_relationships} relationships) - "
+                    f"may take ~{est_minutes} minutes..."
+                )
+            else:
+                self._emit_progress("Running spdx-tools validation...")
             spec_result = self._validate_with_spdx_tools(spdx_data)
             errors.extend(spec_result.errors)
             warnings.extend(spec_result.warnings)
@@ -134,9 +158,15 @@ class SpdxSpecValidator:
 
         # Validate package SPDXIDs
         packages = spdx_data.get("packages", [])
-        for pkg in packages:
+        total_packages = len(packages)
+        for idx, pkg in enumerate(packages):
             pkg_spdx_id = pkg.get("SPDXID", "")
             pkg_name = pkg.get("name", "unknown")
+            # Show progress every 500 packages or on last package
+            if idx % 500 == 0 or idx == total_packages - 1:
+                self._emit_progress(
+                    f"Checking IDs: {idx + 1}/{total_packages} - {pkg_name[:40]}"
+                )
             if pkg_spdx_id:
                 id_errors = SpdxIdGenerator.validate_spdx_id(pkg_spdx_id)
                 for err in id_errors:
@@ -164,6 +194,22 @@ class SpdxSpecValidator:
         """Validate using the spdx-tools library."""
         errors = []
         warnings = []
+        stop_spinner = threading.Event()
+
+        def spinner_thread():
+            """Show progress spinner during long validation."""
+            symbols = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+            idx = 0
+            start_time = time.time()
+            while not stop_spinner.is_set():
+                elapsed = int(time.time() - start_time)
+                minutes, seconds = divmod(elapsed, 60)
+                if self._progress_callback:
+                    self._progress_callback(
+                        f"{symbols[idx]} Validating... ({minutes}m {seconds}s elapsed)"
+                    )
+                idx = (idx + 1) % len(symbols)
+                stop_spinner.wait(0.5)
 
         try:
             from spdx_tools.spdx.parser.parse_anything import parse_file
@@ -179,19 +225,28 @@ class SpdxSpecValidator:
                 temp_path = f.name
 
             try:
+                # Start spinner for progress indication
+                spinner = threading.Thread(target=spinner_thread, daemon=True)
+                spinner.start()
+
                 # Parse the document
+                self._emit_progress("Parsing SPDX document...")
                 document = parse_file(temp_path)
 
                 # Validate against spec
+                self._emit_progress("Running full spec validation...")
                 validation_messages = validate_full_spdx_document(document)
+
+                # Stop spinner
+                stop_spinner.set()
+                spinner.join(timeout=1)
 
                 for msg in validation_messages:
                     msg_str = str(msg)
-                    # spdx-tools validation messages indicate spec violations
-                    # which should be treated as errors
                     errors.append(f"[spdx-tools] {msg_str}")
 
             finally:
+                stop_spinner.set()
                 # Clean up temp file
                 Path(temp_path).unlink(missing_ok=True)
 

@@ -90,6 +90,17 @@ def main(
         click.echo(f"\n📦 Root SBOM: {root_sbom.name}")
         click.echo(f"📦 Dependency SBOMs: {len(dep_sboms)}")
 
+        # Estimate total time based on dependency count
+        # Empirical: 445 deps → 26K packages → 41 min actual
+        # Estimate ~25% higher so users are happy when it finishes early
+        if len(dep_sboms) > 50:
+            est_packages = len(dep_sboms) * 58  # avg packages per dep
+            est_minutes = max(1, (est_packages * 18) // 10000)  # ~25% buffer
+            click.echo(
+                f"\n⏱️  Estimated total time: ~{est_minutes} minutes "
+                f"(validation is the slowest step)"
+            )
+
         click.echo("\n🔄 Merging SBOMs...")
         merger = SbomMerger()
         result = merger.merge_sboms(root_sbom, dep_sboms)
@@ -110,8 +121,18 @@ def main(
 
         # Validate BEFORE saving - if validation fails, don't create files
         click.echo("🔍 Validating merged SBOM against SPDX 2.3 specification...")
-        validator = SpdxSpecValidator()
+
+        def progress_callback(msg: str):
+            """Display validation progress with carriage return for updates."""
+            # Use carriage return to overwrite spinner lines
+            if msg.startswith(("⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏")):
+                click.echo(f"\r   {msg}", nl=False)
+            else:
+                click.echo(f"\r   {msg}                    ")
+
+        validator = SpdxSpecValidator(progress_callback=progress_callback)
         validation_result = validator.validate_json_data(serialized)
+        click.echo()  # New line after spinner
 
         if validation_result.warnings and verbose:
             click.echo(f"⚠️  {len(validation_result.warnings)} validation warnings")
