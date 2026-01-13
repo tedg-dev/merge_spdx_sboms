@@ -31,6 +31,15 @@ class SbomMerger:
         "Unicode-3.0": "NOASSERTION",
         # Add other unsupported licenses here as needed
     }
+
+    # Malformed license expressions that need fixing
+    # Issue: Some SBOMs incorrectly use AND with license exceptions instead of WITH
+    # Example: "MPL-2.0 AND MPL-2.0-no-copyleft-exception" should use WITH
+    MALFORMED_LICENSE_FIXES = {
+        "MPL-2.0 AND MPL-2.0-no-copyleft-exception": (
+            "MPL-2.0 WITH MPL-2.0-no-copyleft-exception"
+        ),
+    }
     # ==========================================================================
     # END TEMPORARY WORKAROUND
     # ==========================================================================
@@ -42,15 +51,20 @@ class SbomMerger:
 
     def _sanitize_license_for_corona(self, license_value: str | None) -> str | None:
         """
-        TEMPORARY WORKAROUND - Replace unsupported licenses with NOASSERTION.
+        TEMPORARY WORKAROUND - Fix license expression issues.
 
-        This is needed because Corona API hasn't updated its license database
-        to include newly-added SPDX licenses like Unicode-3.0 (added Dec 2025).
+        This handles:
+        1. Unsupported licenses (Corona API hasn't updated its license database)
+        2. Malformed license expressions (AND instead of WITH for exceptions)
 
-        TODO: Remove this method once Corona API supports these licenses.
+        TODO: Remove unsupported license workarounds once Corona API is updated.
         """
         if license_value is None:
             return None
+        # Fix malformed license expressions first
+        if license_value in self.MALFORMED_LICENSE_FIXES:
+            license_value = self.MALFORMED_LICENSE_FIXES[license_value]
+        # Then check for unsupported licenses
         if license_value in self.UNSUPPORTED_LICENSES_WORKAROUND:
             return self.UNSUPPORTED_LICENSES_WORKAROUND[license_value]
         return license_value
